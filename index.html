@@ -322,12 +322,12 @@ function canMove(tank, nx, ny) {
     if (walls[r][c] === 3 && tank === player) return false;
   }
 
-  // Tank-tank collision (use small margin for smooth passing)
+  // Tank-tank collision (small margin so tanks don't get stuck on each other)
   const allTanks = tank === player ? enemies : [player, ...enemies.filter(e => e !== tank)];
   for (const other of allTanks) {
     if (!other || other === tank) continue;
     const dx2 = nx - other.x, dy2 = ny - other.y;
-    if (Math.abs(dx2) < 14 && Math.abs(dy2) < 14) return false;
+    if (Math.abs(dx2) < 12 && Math.abs(dy2) < 12) return false;
   }
 
   return true;
@@ -395,9 +395,23 @@ function shootBullet(tank, isPlayer) {
   bullets.push(createBullet(bx, by, tank.dir, isPlayer));
 }
 
+function checkBulletHitWall(col, row, isPlayer) {
+  if (row < 0 || row >= ROWS || col < 0 || col >= COLS) return 'none';
+  if (walls[row][col] === 1) {
+    walls[row][col] = 0;
+    return 'brick';
+  }
+  if (walls[row][col] === 2) return 'steel';
+  // Only enemy bullets can destroy the base
+  if (walls[row][col] === 3 && !isPlayer) return 'base';
+  return 'none';
+}
+
 function updateBullets() {
   for (const b of bullets) {
     if (!b.active) continue;
+
+    const prevX = b.x, prevY = b.y;
     b.x += DX[b.dir] * b.speed;
     b.y += DY[b.dir] * b.speed;
 
@@ -407,28 +421,35 @@ function updateBullets() {
       continue;
     }
 
-    const col = Math.floor(b.x / CELL);
-    const row = Math.floor(b.y / CELL);
-    if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
-      if (walls[row][col] === 1) {
-        b.active = false;
-        walls[row][col] = 0;
-        explosions.push(createExplosion(col * CELL + CELL / 2, row * CELL + CELL / 2));
-        continue;
+    // Step-based collision: check intermediate positions to prevent passthrough
+    const steps = Math.ceil(b.speed);
+    const stepX = (b.x - prevX) / steps;
+    const stepY = (b.y - prevY) / steps;
+    let hit = 'none', hitCol = 0, hitRow = 0;
+
+    for (let s = 0; s <= steps; s++) {
+      const sx = Math.round(prevX + stepX * s);
+      const sy = Math.round(prevY + stepY * s);
+      const col = Math.floor(sx / CELL);
+      const row = Math.floor(sy / CELL);
+      const result = checkBulletHitWall(col, row, b.isPlayer);
+      if (result !== 'none') {
+        hit = result; hitCol = col; hitRow = row;
+        b.x = sx; b.y = sy;
+        break;
       }
-      if (walls[row][col] === 2) {
-        b.active = false;
-        explosions.push(createExplosion(col * CELL + CELL / 2, row * CELL + CELL / 2));
-        continue;
-      }
-      if (walls[row][col] === 3) {
-        b.active = false;
-        explosions.push(createExplosion(col * CELL + CELL / 2, row * CELL + CELL / 2, true));
+    }
+
+    if (hit !== 'none') {
+      b.active = false;
+      explosions.push(createExplosion(hitCol * CELL + CELL / 2, hitRow * CELL + CELL / 2, hit === 'base'));
+      if (hit === 'base') {
         gameRunning = false;
         document.getElementById('gameOver').style.display = 'flex';
         document.getElementById('goMsg').textContent = '基地被摧毁！最终分数: ' + score;
         return;
       }
+      continue;
     }
 
     // Hit tanks
