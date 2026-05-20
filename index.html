@@ -228,7 +228,7 @@ function loadMap(idx) {
 function createPlayer() {
   return {
     x: 260, y: 448, dir: DIR.UP,
-    speed: 1.5, size: 16,
+    speed: 1.0, size: 16,
     shotCooldown: 0, lives: 3, invincible: 0
   };
 }
@@ -236,10 +236,10 @@ function createPlayer() {
 function createEnemy(x, y, type = 0) {
   const directions = [DIR.DOWN, DIR.LEFT, DIR.RIGHT, DIR.UP];
   // type 0: normal, 1: fast, 2: heavy
-  const speeds = [0.8, 1.4, 0.6];
+  const speeds = [0.5, 0.8, 0.4];
   return {
     x, y, dir: directions[Math.floor(Math.random() * 4)],
-    speed: speeds[type] || 0.8,
+    speed: speeds[type] || 0.5,
     size: 16, type,
     shotCooldown: 0,
     moveTimer: 0, moveDir: directions[Math.floor(Math.random() * 4)]
@@ -247,7 +247,7 @@ function createEnemy(x, y, type = 0) {
 }
 
 function createBullet(x, y, dir, isPlayer) {
-  return { x, y, dir, speed: 4, active: true, isPlayer, size: 3 };
+  return { x, y, dir, speed: 3, active: true, isPlayer, size: 3 };
 }
 
 function createExplosion(x, y, big = false) {
@@ -387,7 +387,7 @@ function enemyAI(enemy) {
   enemy.shotCooldown--;
   if (enemy.shotCooldown <= 0) {
     bullets.push(createBullet(enemy.x, enemy.y, enemy.dir, false));
-    enemy.shotCooldown = 60 + Math.floor(Math.random() * 60);
+    enemy.shotCooldown = 90 + Math.floor(Math.random() * 90);
   }
 }
 
@@ -499,7 +499,7 @@ function update() {
 
   // Spawn enemies
   spawnTimer++;
-  if (spawnTimer > 120 && enemySpawnCount < enemiesRemaining && enemies.length < maxEnemiesOnScreen) {
+  if (spawnTimer > 200 && enemySpawnCount < enemiesRemaining && enemies.length < maxEnemiesOnScreen) {
     spawnEnemy();
     spawnTimer = 0;
   }
