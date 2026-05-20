@@ -229,7 +229,7 @@ function createPlayer() {
   return {
     x: 260, y: 448, dir: DIR.UP,
     speed: 1.0, size: 16,
-    shotCooldown: 0, lives: 3, invincible: 0
+    shotCooldown: 0, lives: 5, invincible: 0
   };
 }
 
@@ -256,7 +256,7 @@ function createExplosion(x, y, big = false) {
 
 function resetGame() {
   score = 0;
-  lives = 3;
+  lives = 5;
   wave = 1;
   loadMap(0);
   player = createPlayer();
@@ -264,8 +264,8 @@ function resetGame() {
   enemies = [];
   bullets = [];
   explosions = [];
-  enemiesRemaining = 20;
-  maxEnemiesOnScreen = 4;
+  enemiesRemaining = 10;
+  maxEnemiesOnScreen = 3;
   enemySpawnCount = 0;
   spawnTimer = 0;
   gameRunning = true;
@@ -387,7 +387,7 @@ function enemyAI(enemy) {
   enemy.shotCooldown--;
   if (enemy.shotCooldown <= 0) {
     bullets.push(createBullet(enemy.x, enemy.y, enemy.dir, false));
-    enemy.shotCooldown = 90 + Math.floor(Math.random() * 90);
+    enemy.shotCooldown = 120 + Math.floor(Math.random() * 120);
   }
 }
 
@@ -458,7 +458,7 @@ function updateBullets() {
           document.getElementById('goMsg').textContent = '你被击毁了！最终分数: ' + score;
           return;
         }
-        player.invincible = 90;
+        player.invincible = 150;
         player.x = 260; player.y = 448;
         player.dir = DIR.UP;
       }
@@ -488,7 +488,7 @@ function update() {
 
   if ((keys[' '] || keys['Space']) && player.shotCooldown <= 0) {
     shootBullet(player, true);
-    player.shotCooldown = 15;
+    player.shotCooldown = 10;
   }
 
   // Enemy AI
@@ -499,7 +499,7 @@ function update() {
 
   // Spawn enemies
   spawnTimer++;
-  if (spawnTimer > 200 && enemySpawnCount < enemiesRemaining && enemies.length < maxEnemiesOnScreen) {
+  if (spawnTimer > 350 && enemySpawnCount < enemiesRemaining && enemies.length < maxEnemiesOnScreen) {
     spawnEnemy();
     spawnTimer = 0;
   }
@@ -514,8 +514,8 @@ function update() {
       return;
     }
     loadMap((wave - 1) % MAPS.length);
-    enemiesRemaining = 16 + wave * 2;
-    maxEnemiesOnScreen = Math.min(4 + Math.floor(wave / 2), 8);
+    enemiesRemaining = 8 + wave * 1;
+    maxEnemiesOnScreen = Math.min(2 + Math.floor(wave / 3), 6);
     enemySpawnCount = 0;
     spawnTimer = 0;
     player.invincible = 60;
