@@ -304,8 +304,9 @@ function updateUI() {
 }
 
 function canMove(tank, nx, ny) {
-  const s = tank.size / 2;
-  const left = nx - s, right = nx + s, top = ny - s, bottom = ny + s;
+  // Use smaller collision box (6px) to give clearance in 20px corridors
+  const c = 6;
+  const left = nx - c, right = nx + c, top = ny - c, bottom = ny + c;
   if (left < 0 || right > canvas.width || top < 0 || bottom > canvas.height) return false;
 
   const cells = [
@@ -318,30 +319,27 @@ function canMove(tank, nx, ny) {
   for (const {r, c} of cells) {
     if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return false;
     if (walls[r][c] === 1 || walls[r][c] === 2) return false;
-    // Base only enemies can enter
     if (walls[r][c] === 3 && tank === player) return false;
   }
 
-  // Tank-tank collision
+  // Tank-tank collision (use small margin for smooth passing)
   const allTanks = tank === player ? enemies : [player, ...enemies.filter(e => e !== tank)];
   for (const other of allTanks) {
     if (!other || other === tank) continue;
     const dx2 = nx - other.x, dy2 = ny - other.y;
-    if (Math.abs(dx2) < tank.size && Math.abs(dy2) < tank.size) return false;
+    if (Math.abs(dx2) < 14 && Math.abs(dy2) < 14) return false;
   }
 
   return true;
 }
 
 function snapToGrid(tank) {
-  // Snap to grid for smoother movement through corridors
-  const s = tank.size / 2;
   if (tank.dir === DIR.UP || tank.dir === DIR.DOWN) {
     const cx = Math.round(tank.x / 10) * 10;
-    if (Math.abs(tank.x - cx) < tank.speed + 0.5) tank.x = cx;
+    if (Math.abs(tank.x - cx) < tank.speed + 0.5 && canMove(tank, cx, tank.y)) tank.x = cx;
   } else {
     const cy = Math.round(tank.y / 10) * 10;
-    if (Math.abs(tank.y - cy) < tank.speed + 0.5) tank.y = cy;
+    if (Math.abs(tank.y - cy) < tank.speed + 0.5 && canMove(tank, tank.x, cy)) tank.y = cy;
   }
 }
 
