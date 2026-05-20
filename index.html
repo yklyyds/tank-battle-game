@@ -227,7 +227,7 @@ function loadMap(idx) {
 
 function createPlayer() {
   return {
-    x: 256, y: 480, dir: DIR.UP,
+    x: 260, y: 448, dir: DIR.UP,
     speed: 1.5, size: 16,
     shotCooldown: 0, lives: 3, invincible: 0
   };
@@ -459,7 +459,7 @@ function updateBullets() {
           return;
         }
         player.invincible = 90;
-        player.x = 256; player.y = 480;
+        player.x = 260; player.y = 448;
         player.dir = DIR.UP;
       }
     }
