@@ -281,11 +281,11 @@ function restartGame() {
 function spawnEnemy() {
   if (enemySpawnCount >= enemiesRemaining || enemies.length >= maxEnemiesOnScreen) return;
   const spawnPoints = [
-    { x: 0, y: 0 }, { x: 260, y: 0 }, { x: 520, y: 0 }
+    { x: 20, y: 18 }, { x: 260, y: 18 }, { x: 500, y: 18 }
   ];
   const pt = spawnPoints[Math.floor(Math.random() * spawnPoints.length)];
   const type = wave > 5 ? Math.floor(Math.random() * 3) : (wave > 2 ? Math.floor(Math.random() * 2) : 0);
-  enemies.push(createEnemy(pt.x + 18, pt.y + 18, type));
+  enemies.push(createEnemy(pt.x, pt.y, type));
   enemySpawnCount++;
 }
 
@@ -492,7 +492,7 @@ function update() {
   }
 
   // Enemy AI
-  for (const enemy of enemies) enemyAI(enemy);
+  for (const enemy of enemies) { enemyAI(enemy); snapToGrid(enemy); }
 
   // Bullets
   updateBullets();
