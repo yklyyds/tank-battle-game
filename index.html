@@ -228,7 +228,7 @@ function loadMap(idx) {
 function createPlayer() {
   return {
     x: 260, y: 448, dir: DIR.UP,
-    speed: 1.0, size: 16,
+    speed: 0.75, size: 16,
     shotCooldown: 0, lives: 5, invincible: 0
   };
 }
@@ -236,7 +236,7 @@ function createPlayer() {
 function createEnemy(x, y, type = 0) {
   const directions = [DIR.DOWN, DIR.LEFT, DIR.RIGHT, DIR.UP];
   // type 0: normal, 1: fast, 2: heavy
-  const speeds = [0.5, 0.8, 0.4];
+  const speeds = [0.4, 0.6, 0.3];
   return {
     x, y, dir: directions[Math.floor(Math.random() * 4)],
     speed: speeds[type] || 0.5,
@@ -552,7 +552,7 @@ function update() {
     maxEnemiesOnScreen = Math.min(2 + Math.floor(wave / 3), 6);
     enemySpawnCount = 0;
     spawnTimer = 0;
-    player.lives = 3;
+    player.lives = 5;
     player.invincible = 60;
     updateUI();
   }
