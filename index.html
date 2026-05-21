@@ -281,12 +281,18 @@ function restartGame() {
 function spawnEnemy() {
   if (enemySpawnCount >= enemiesRemaining || enemies.length >= maxEnemiesOnScreen) return;
   const spawnPoints = [
-    { x: 20, y: 18 }, { x: 260, y: 18 }, { x: 500, y: 18 }
+    { x: 130, y: 30 }, { x: 260, y: 30 }, { x: 390, y: 30 }
   ];
-  // Filter spawn points that aren't already occupied by another tank
+  // Filter spawn points that aren't occupied or inside walls
   const available = spawnPoints.filter(pt => {
     for (const e of enemies) {
       if (Math.abs(pt.x - e.x) < 28 && Math.abs(pt.y - e.y) < 28) return false;
+    }
+    // Check that spawn area is clear of walls
+    const col = Math.floor(pt.x / CELL);
+    const row = Math.floor(pt.y / CELL);
+    if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
+      if (walls[row][col] !== 0) return false;
     }
     return true;
   });
@@ -572,23 +578,11 @@ function drawTank(tank, color, isPlayer = false) {
 
   // Body
   ctx.fillStyle = color;
-  ctx.fillRect(-s, -s + 2, s * 2, s * 2 - 4);
+  ctx.fillRect(-s, -s, s * 2, s * 2);
 
-  // Tracks
-  ctx.fillStyle = '#333';
-  ctx.fillRect(-s - 2, -s, 4, s * 2);
-  ctx.fillRect(s - 2, -s, 4, s * 2);
-
-  // Track details
-  ctx.fillStyle = '#555';
-  for (let i = -s + 4; i < s - 2; i += 4) {
-    ctx.fillRect(-s - 1, i, 2, 2);
-    ctx.fillRect(s + 1, i, 2, 2);
-  }
-
-  // Turret
+  // Turret barrel
   ctx.fillStyle = isPlayer ? '#5a5' : '#d44';
-  ctx.fillRect(-3, -s - 4, 6, s);
+  ctx.fillRect(-2, -s - 5, 4, s + 2);
 
   ctx.restore();
 }
