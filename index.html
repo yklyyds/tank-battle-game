@@ -552,6 +552,7 @@ function update() {
     maxEnemiesOnScreen = Math.min(2 + Math.floor(wave / 3), 6);
     enemySpawnCount = 0;
     spawnTimer = 0;
+    player.lives = 3;
     player.invincible = 60;
     updateUI();
   }
