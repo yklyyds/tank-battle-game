@@ -228,7 +228,7 @@ function loadMap(idx) {
 function createPlayer() {
   return {
     x: 260, y: 448, dir: DIR.UP,
-    speed: 0.75, size: 16,
+    speed: 0.75, size: 12,
     shotCooldown: 0, lives: 5, invincible: 0
   };
 }
@@ -240,7 +240,7 @@ function createEnemy(x, y, type = 0) {
   return {
     x, y, dir: directions[Math.floor(Math.random() * 4)],
     speed: speeds[type] || 0.5,
-    size: 16, type,
+    size: 12, type,
     shotCooldown: 0,
     moveTimer: 0, moveDir: directions[Math.floor(Math.random() * 4)]
   };
@@ -318,8 +318,8 @@ function updateUI() {
 }
 
 function canMove(tank, nx, ny) {
-  // Use smaller collision box (6px) to give clearance in 20px corridors
-  const c = 6;
+  // Use smaller collision box (5px) to give clearance in 20px corridors
+  const c = 5;
   const left = nx - c, right = nx + c, top = ny - c, bottom = ny + c;
   if (left < 0 || right > canvas.width || top < 0 || bottom > canvas.height) return false;
 
@@ -341,7 +341,7 @@ function canMove(tank, nx, ny) {
   for (const other of allTanks) {
     if (!other || other === tank) continue;
     const dx2 = nx - other.x, dy2 = ny - other.y;
-    const margin = (tank !== player && other !== player) ? 10 : 14;
+    const margin = (tank !== player && other !== player) ? 8 : 12;
     if (Math.abs(dx2) < margin && Math.abs(dy2) < margin) return false;
   }
 
@@ -470,11 +470,11 @@ function updateBullets() {
         break;
       }
 
-      // Check tank collision at each step, radius 10 covers treads
+      // Check tank collision at each step
       if (b.isPlayer) {
         for (let i = enemies.length - 1; i >= 0; i--) {
           const e = enemies[i];
-          if (Math.abs(sx - e.x) < 10 && Math.abs(sy - e.y) < 10) {
+          if (Math.abs(sx - e.x) < 8 && Math.abs(sy - e.y) < 8) {
             b.active = false;
             explosions.push(createExplosion(e.x, e.y, true));
             enemies.splice(i, 1);
@@ -484,7 +484,7 @@ function updateBullets() {
           }
         }
       } else {
-        if (player.invincible <= 0 && Math.abs(sx - player.x) < 10 && Math.abs(sy - player.y) < 10) {
+        if (player.invincible <= 0 && Math.abs(sx - player.x) < 8 && Math.abs(sy - player.y) < 8) {
           b.active = false;
           explosions.push(createExplosion(player.x, player.y, true));
           player.lives--;
